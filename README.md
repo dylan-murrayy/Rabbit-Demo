@@ -1,4 +1,4 @@
-# 🥊 Mastering Microservices: The Sync vs Async Showdown
+# Mastering Microservices: The Sync vs Async Showdown
 
 > **"Why is my microservice architecture slower than my monolith?"**
 

@@ -222,8 +222,8 @@ function App() {
                                     </div>
 
                                     <div className={`w-24 text-center px-3 py-1 rounded-full text-xs font-bold tracking-wide ${log.type === 'SYNC'
-                                            ? 'bg-red-100 text-red-700'
-                                            : 'bg-blue-100 text-blue-700'
+                                        ? 'bg-red-100 text-red-700'
+                                        : 'bg-blue-100 text-blue-700'
                                         }`}>
                                         {log.type}
                                     </div>
@@ -236,29 +236,57 @@ function App() {
                 {/* Explanation Section */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                        <h3 className="font-bold text-lg mb-4 text-gray-900">🔴 Why is Sync Slow?</h3>
-                        <p className="text-gray-600 leading-relaxed mb-4">
-                            When you click <strong>Checkout</strong>, the server makes a direct HTTP request to the <strong>Payment Service</strong>.
-                        </p>
-                        <ul className="list-disc list-inside space-y-2 text-gray-600 text-sm bg-gray-50 p-4 rounded-xl">
-                            <li>The Checkout service <strong>waits</strong> for Payment to respond.</li>
-                            <li>Payment service sleeps for <strong>3 seconds</strong>.</li>
-                            <li>Therefore, Checkout sleeps for 3 seconds.</li>
-                            <li><strong>Result:</strong> You (the user) are blocked.</li>
-                        </ul>
+                        <h3 className="font-bold text-lg mb-4 text-red-900 flex items-center">
+                            <Layers className="w-5 h-5 mr-2" />
+                            Under the Hood: Synchronous
+                        </h3>
+                        <div className="space-y-4">
+                            <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                <h4 className="font-bold text-sm text-gray-700 mb-2">The Request Cycle</h4>
+                                <code className="text-xs font-mono text-gray-600 block bg-white p-2 rounded border border-gray-200 mb-2">
+                                    POST /checkout ➔ (Wait) ➔ POST /pay ➔ (Wait 3s) ➔ 200 OK ➔ 200 OK
+                                </code>
+                                <p className="text-sm text-gray-600">
+                                    The HTTP request blocks the client connection. The <code>checkout-service</code> holds the TCP connection open while waiting for <code>payment-service</code>.
+                                </p>
+                            </div>
+
+                            <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                <h4 className="font-bold text-sm text-gray-700 mb-2">Technical Impact</h4>
+                                <ul className="list-disc list-inside space-y-1 text-xs text-gray-600">
+                                    <li><strong>Resource Exhaustion:</strong> Threads/Coroutines are tied up waiting for I/O.</li>
+                                    <li><strong>Cascading Latency:</strong> SLA of Checkout = SLA of Payment + Network Overhead.</li>
+                                    <li><strong>Tight Coupling:</strong> Checkout requires Payment to be up to function (Runtime Dependency).</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
 
                     <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                        <h3 className="font-bold text-lg mb-4 text-gray-900">🔵 Why is Async Fast?</h3>
-                        <p className="text-gray-600 leading-relaxed mb-4">
-                            When you click <strong>Checkout</strong>, the server sends a message to a <strong>Queue</strong> (RabbitMQ) and returns immediately.
-                        </p>
-                        <ul className="list-disc list-inside space-y-2 text-gray-600 text-sm bg-gray-50 p-4 rounded-xl">
-                            <li>Checkout <strong>does not wait</strong> for Payment.</li>
-                            <li>The message is stored safely in the Queue.</li>
-                            <li>Payment service picks it up <strong>later</strong> (in the background).</li>
-                            <li><strong>Result:</strong> You get an instant confirmation.</li>
-                        </ul>
+                        <h3 className="font-bold text-lg mb-4 text-blue-900 flex items-center">
+                            <Database className="w-5 h-5 mr-2" />
+                            Under the Hood: Asynchronous
+                        </h3>
+                        <div className="space-y-4">
+                            <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                                <h4 className="font-bold text-sm text-gray-700 mb-2">The Event Flow</h4>
+                                <code className="text-xs font-mono text-gray-600 block bg-white p-2 rounded border border-gray-200 mb-2">
+                                    POST /checkout ➔ Publish(order.created) ➔ 202 Accepted
+                                </code>
+                                <p className="text-sm text-gray-600">
+                                    The service publishes a message to the <strong>Exchange</strong> with routing key <code>order.created</code> and returns immediately.
+                                </p>
+                            </div>
+
+                            <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                                <h4 className="font-bold text-sm text-gray-700 mb-2">Technical Impact</h4>
+                                <ul className="list-disc list-inside space-y-1 text-xs text-gray-600">
+                                    <li><strong>Non-Blocking I/O:</strong> The request completes in milliseconds.</li>
+                                    <li><strong>Load Leveling:</strong> Payment service consumes messages at its own pace (Worker Pattern).</li>
+                                    <li><strong>Fault Tolerance:</strong> If Payment is down, messages persist in the Queue (Durability).</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

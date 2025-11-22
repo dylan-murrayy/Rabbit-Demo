@@ -186,7 +186,7 @@ function App() {
                 </div>
 
                 {/* Logs */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-8">
                     <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
                         <h3 className="font-bold text-lg flex items-center text-gray-700">
                             <Clock className="w-5 h-5 mr-2 text-gray-400" />
@@ -230,6 +230,35 @@ function App() {
                                 </div>
                             </div>
                         ))}
+                    </div>
+                </div>
+
+                {/* Explanation Section */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                        <h3 className="font-bold text-lg mb-4 text-gray-900">🔴 Why is Sync Slow?</h3>
+                        <p className="text-gray-600 leading-relaxed mb-4">
+                            When you click <strong>Checkout</strong>, the server makes a direct HTTP request to the <strong>Payment Service</strong>.
+                        </p>
+                        <ul className="list-disc list-inside space-y-2 text-gray-600 text-sm bg-gray-50 p-4 rounded-xl">
+                            <li>The Checkout service <strong>waits</strong> for Payment to respond.</li>
+                            <li>Payment service sleeps for <strong>3 seconds</strong>.</li>
+                            <li>Therefore, Checkout sleeps for 3 seconds.</li>
+                            <li><strong>Result:</strong> You (the user) are blocked.</li>
+                        </ul>
+                    </div>
+
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                        <h3 className="font-bold text-lg mb-4 text-gray-900">🔵 Why is Async Fast?</h3>
+                        <p className="text-gray-600 leading-relaxed mb-4">
+                            When you click <strong>Checkout</strong>, the server sends a message to a <strong>Queue</strong> (RabbitMQ) and returns immediately.
+                        </p>
+                        <ul className="list-disc list-inside space-y-2 text-gray-600 text-sm bg-gray-50 p-4 rounded-xl">
+                            <li>Checkout <strong>does not wait</strong> for Payment.</li>
+                            <li>The message is stored safely in the Queue.</li>
+                            <li>Payment service picks it up <strong>later</strong> (in the background).</li>
+                            <li><strong>Result:</strong> You get an instant confirmation.</li>
+                        </ul>
                     </div>
                 </div>
             </div>

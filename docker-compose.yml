@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  checkout-service:
+    build: ./services/checkout
+    ports:
+      - "8000:8000"
+    environment:
+      - MODE=SYNC
+      - PAYMENT_SERVICE_URL=http://payment-service:8000/pay
+    depends_on:
+      - payment-service
+
+  payment-service:
+    build: ./services/payment
+    ports:
+      - "8001:8000"
+    environment:
+      - MODE=SYNC
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - checkout-service

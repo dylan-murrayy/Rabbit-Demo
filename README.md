@@ -2,6 +2,8 @@
 
 > **"Why is my microservice architecture slower than my monolith?"**
 
+![Dashboard Home](images/home.png)
+
 This project is a hands-on demonstration of the two most common communication patterns in microservices: **Synchronous (HTTP)** and **Asynchronous (Message Queues)**.
 
 It includes a **Side-by-Side Visualization** so you can *feel* the difference in latency and user experience.
@@ -118,8 +120,6 @@ def checkout(order):
 
 ## Run the Demo (The Showdown)
 
-![Dashboard Home](frontend/images/home.png)
-
 We've built a special **Side-by-Side Mode** that runs both architectures at the same time so you can race them.
 
 ### 1. Start the Stack
@@ -142,7 +142,7 @@ Go to **http://localhost:3000**
 
 ## Under the Hood Concepts
 
-![Under the Hood](frontend/images/Under-the-hood.png)
+![Under the Hood](images/Under-the-hood.png)
 
 ### Resource Exhaustion
 In the Sync model, every waiting request holds a thread or connection open. If you have 1000 users, you need 1000 threads. In Async, you can handle 1000 users with just a few threads because you aren't waiting.
@@ -156,7 +156,7 @@ If 1000 orders come in at once:
 
 ## 🧠 The Decision Matrix
 
-![Decision Matrix](frontend/images/decision-matrix.png)
+![Decision Matrix](images/decision-matrix.png)
 
 | Feature | Synchronous (HTTP) | Asynchronous (Queues) |
 | :--- | :--- | :--- |

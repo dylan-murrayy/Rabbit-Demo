@@ -17,7 +17,38 @@ By building and running this project, you will understand:
 
 ---
 
-## The Architecture
+---
+
+## 📖 The Story of Scaling: When to Switch?
+
+Imagine you are building **"TicketMaster for Hamsters"**.
+
+### Phase 1: The MVP (100 Users)
+You build everything **Synchronously**.
+*   User clicks "Buy Ticket".
+*   Server calls Bank API (3s).
+*   Server calls Email API (2s).
+*   User waits 5 seconds. 😴
+*   **Verdict**: It's fine. It's simple. It works.
+
+### Phase 2: The Viral Hit (10,000 Users)
+Your site goes viral. 10,000 people try to buy tickets at once.
+*   Your server has 50 threads.
+*   All 50 threads are stuck waiting for the Bank API.
+*   User #51 gets a "Connection Refused" error. 💥
+*   **The Problem**: Your app isn't doing work; it's just *waiting*.
+
+### Phase 3: The Async Revolution
+You switch to **Asynchronous** queues.
+*   User clicks "Buy Ticket".
+*   Server says "Request Received!" (Instant). ⚡️
+*   Server puts a message in RabbitMQ.
+*   Worker process handles the Bank and Email in the background.
+*   **Verdict**: Your server can handle 10,000 requests/second because it never waits.
+
+---
+
+## 🏗 The Architecture
 
 ### 1. The "Sync" Trap (Blocking)
 This is how most people start. Service A calls Service B directly.
@@ -91,7 +122,7 @@ We've built a special **Side-by-Side Mode** that runs both architectures at the 
 
 ### 1. Start the Stack
 ```bash
-docker-compose -f docker-compose.combined.yml up --build
+docker compose -p rabbit-demo-combined -f docker-compose.combined.yml up --build
 ```
 
 ### 2. Open the Dashboard

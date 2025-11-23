@@ -234,63 +234,195 @@ function App() {
                 </div>
 
                 {/* Explanation Section */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+
+                    {/* SYNC EXPLANATION */}
                     <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                        <h3 className="font-bold text-lg mb-4 text-red-900 flex items-center">
+                        <h3 className="font-bold text-lg mb-6 text-red-900 flex items-center">
                             <Layers className="w-5 h-5 mr-2" />
                             Under the Hood: Synchronous
                         </h3>
-                        <div className="space-y-4">
-                            <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                                <h4 className="font-bold text-sm text-gray-700 mb-2">The Request Cycle</h4>
-                                <code className="text-xs font-mono text-gray-600 block bg-white p-2 rounded border border-gray-200 mb-2">
-                                    POST /checkout ➔ (Wait) ➔ POST /pay ➔ (Wait 3s) ➔ 200 OK ➔ 200 OK
-                                </code>
-                                <p className="text-sm text-gray-600">
-                                    The HTTP request blocks the client connection. The <code>checkout-service</code> holds the TCP connection open while waiting for <code>payment-service</code>.
-                                </p>
+
+                        {/* Sync Animation Container */}
+                        <div className="bg-gray-50 rounded-xl border border-gray-100 p-6 mb-6 relative overflow-hidden h-32 flex items-center">
+                            {/* Nodes */}
+                            <div className="absolute left-6 flex flex-col items-center z-10">
+                                <div className="w-12 h-12 bg-white border-2 border-gray-300 rounded-lg flex items-center justify-center shadow-sm">
+                                    <Server className="w-6 h-6 text-gray-500" />
+                                </div>
+                                <span className="text-xs font-bold text-gray-500 mt-1">Checkout</span>
                             </div>
 
-                            <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                                <h4 className="font-bold text-sm text-gray-700 mb-2">Technical Impact</h4>
-                                <ul className="list-disc list-inside space-y-1 text-xs text-gray-600">
-                                    <li><strong>Resource Exhaustion:</strong> Threads/Coroutines are tied up waiting for I/O.</li>
-                                    <li><strong>Cascading Latency:</strong> SLA of Checkout = SLA of Payment + Network Overhead.</li>
-                                    <li><strong>Tight Coupling:</strong> Checkout requires Payment to be up to function (Runtime Dependency).</li>
-                                </ul>
+                            <div className="absolute right-6 flex flex-col items-center z-10">
+                                <div className="w-12 h-12 bg-white border-2 border-red-200 rounded-lg flex items-center justify-center shadow-sm">
+                                    <Activity className="w-6 h-6 text-red-500" />
+                                </div>
+                                <span className="text-xs font-bold text-gray-500 mt-1">Payment</span>
+                            </div>
+
+                            {/* Path */}
+                            <div className="absolute left-12 right-12 h-1 bg-gray-200 top-1/2 -translate-y-1/2 z-0"></div>
+
+                            {/* Moving Packet */}
+                            <div className="absolute left-12 top-1/2 -translate-y-1/2 z-20 animate-flow-sync">
+                                <div className="w-4 h-4 bg-red-500 rounded-full shadow-md"></div>
+                            </div>
+
+                            {/* Blocking Label */}
+                            <div className="absolute top-2 w-full text-center">
+                                <span className="text-[10px] font-mono text-red-500 bg-red-50 px-2 py-1 rounded border border-red-100">
+                                    Request BLOCKED waiting for response
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <div className="flex items-start">
+                                <div className="bg-red-100 p-1 rounded mt-1 mr-3"><Clock className="w-3 h-3 text-red-600" /></div>
+                                <p className="text-sm text-gray-600"><strong>Cascading Latency:</strong> The user waits for the <em>sum</em> of all service times.</p>
+                            </div>
+                            <div className="flex items-start">
+                                <div className="bg-red-100 p-1 rounded mt-1 mr-3"><AlertCircle className="w-3 h-3 text-red-600" /></div>
+                                <p className="text-sm text-gray-600"><strong>Tight Coupling:</strong> If Payment fails, Checkout fails.</p>
                             </div>
                         </div>
                     </div>
 
+                    {/* ASYNC EXPLANATION */}
                     <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                        <h3 className="font-bold text-lg mb-4 text-blue-900 flex items-center">
+                        <h3 className="font-bold text-lg mb-6 text-blue-900 flex items-center">
                             <Database className="w-5 h-5 mr-2" />
                             Under the Hood: Asynchronous
                         </h3>
-                        <div className="space-y-4">
-                            <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
-                                <h4 className="font-bold text-sm text-gray-700 mb-2">The Event Flow</h4>
-                                <code className="text-xs font-mono text-gray-600 block bg-white p-2 rounded border border-gray-200 mb-2">
-                                    POST /checkout ➔ Publish(order.created) ➔ 202 Accepted
-                                </code>
-                                <p className="text-sm text-gray-600">
-                                    The service publishes a message to the <strong>Exchange</strong> with routing key <code>order.created</code> and returns immediately.
-                                </p>
+
+                        {/* Async Animation Container */}
+                        <div className="bg-blue-50 rounded-xl border border-blue-100 p-6 mb-6 relative overflow-hidden h-32 flex items-center">
+
+                            {/* Nodes */}
+                            <div className="absolute left-6 flex flex-col items-center z-10">
+                                <div className="w-12 h-12 bg-white border-2 border-gray-300 rounded-lg flex items-center justify-center shadow-sm">
+                                    <Server className="w-6 h-6 text-gray-500" />
+                                </div>
+                                <span className="text-xs font-bold text-gray-500 mt-1">Checkout</span>
                             </div>
 
-                            <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
-                                <h4 className="font-bold text-sm text-gray-700 mb-2">Technical Impact</h4>
-                                <ul className="list-disc list-inside space-y-1 text-xs text-gray-600">
-                                    <li><strong>Non-Blocking I/O:</strong> The request completes in milliseconds.</li>
-                                    <li><strong>Load Leveling:</strong> Payment service consumes messages at its own pace (Worker Pattern).</li>
-                                    <li><strong>Fault Tolerance:</strong> If Payment is down, messages persist in the Queue (Durability).</li>
-                                </ul>
+                            <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center z-10">
+                                <div className="w-12 h-12 bg-white border-2 border-orange-300 rounded-lg flex items-center justify-center shadow-sm">
+                                    <Database className="w-6 h-6 text-orange-500" />
+                                </div>
+                                <span className="text-xs font-bold text-gray-500 mt-1">Queue</span>
+                            </div>
+
+                            <div className="absolute right-6 flex flex-col items-center z-10">
+                                <div className="w-12 h-12 bg-white border-2 border-blue-200 rounded-lg flex items-center justify-center shadow-sm">
+                                    <Activity className="w-6 h-6 text-blue-500" />
+                                </div>
+                                <span className="text-xs font-bold text-gray-500 mt-1">Worker</span>
+                            </div>
+
+                            {/* Paths */}
+                            <div className="absolute left-12 right-1/2 h-1 bg-gray-200 top-1/2 -translate-y-1/2 z-0"></div>
+                            <div className="absolute left-1/2 right-12 h-1 bg-dashed bg-gray-300 top-1/2 -translate-y-1/2 z-0"></div>
+
+                            {/* Moving Packet 1 (Request) */}
+                            <div className="absolute left-12 top-1/2 -translate-y-1/2 z-20 animate-flow-async-request">
+                                <div className="w-4 h-4 bg-blue-500 rounded-full shadow-md"></div>
+                            </div>
+
+                            {/* Moving Packet 2 (Worker) */}
+                            <div className="absolute left-1/2 top-1/2 -translate-y-1/2 z-20 animate-flow-async-worker">
+                                <div className="w-4 h-4 bg-orange-500 rounded-full shadow-md opacity-50"></div>
+                            </div>
+
+                            {/* Instant Label */}
+                            <div className="absolute top-2 left-6">
+                                <span className="text-[10px] font-mono text-blue-600 bg-blue-100 px-2 py-1 rounded">
+                                    202 Accepted
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <div className="flex items-start">
+                                <div className="bg-blue-100 p-1 rounded mt-1 mr-3"><Zap className="w-3 h-3 text-blue-600" /></div>
+                                <p className="text-sm text-gray-600"><strong>Non-Blocking:</strong> User gets instant response. Work happens later.</p>
+                            </div>
+                            <div className="flex items-start">
+                                <div className="bg-blue-100 p-1 rounded mt-1 mr-3"><Layers className="w-3 h-3 text-blue-600" /></div>
+                                <p className="text-sm text-gray-600"><strong>Decoupled:</strong> Queue absorbs spikes. Worker processes at its own pace.</p>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+
+
+                {/* Decision Matrix Section */}
+                <div className="mt-12 bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div className="p-6 bg-gray-900 text-white">
+                        <h3 className="text-xl font-bold flex items-center">
+                            <CheckCircle2 className="w-6 h-6 mr-2 text-green-400" />
+                            The Decision Matrix: When to use what?
+                        </h3>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200">
+                        {/* Sync Scenarios */}
+                        <div className="p-8">
+                            <h4 className="font-bold text-red-900 mb-4 flex items-center">
+                                <Layers className="w-5 h-5 mr-2" />
+                                Use Synchronous When...
+                            </h4>
+                            <ul className="space-y-4">
+                                <li className="flex items-start">
+                                    <div className="bg-red-100 p-1 rounded mr-3 mt-1"><CheckCircle2 className="w-3 h-3 text-red-600" /></div>
+                                    <div>
+                                        <strong className="block text-gray-900 text-sm">You need an immediate answer</strong>
+                                        <p className="text-xs text-gray-500">e.g., User Login (Password correct?), Search Results.</p>
+                                    </div>
+                                </li>
+                                <li className="flex items-start">
+                                    <div className="bg-red-100 p-1 rounded mr-3 mt-1"><CheckCircle2 className="w-3 h-3 text-red-600" /></div>
+                                    <div>
+                                        <strong className="block text-gray-900 text-sm">Simplicity is priority</strong>
+                                        <p className="text-xs text-gray-500">For MVPs and internal tools, async adds complexity you might not need yet.</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        {/* Async Scenarios */}
+                        <div className="p-8 bg-blue-50/30">
+                            <h4 className="font-bold text-blue-900 mb-4 flex items-center">
+                                <Database className="w-5 h-5 mr-2" />
+                                Use Asynchronous When...
+                            </h4>
+                            <ul className="space-y-4">
+                                <li className="flex items-start">
+                                    <div className="bg-blue-100 p-1 rounded mr-3 mt-1"><CheckCircle2 className="w-3 h-3 text-blue-600" /></div>
+                                    <div>
+                                        <strong className="block text-gray-900 text-sm">The task takes &gt; 500ms</strong>
+                                        <p className="text-xs text-gray-500">e.g., Sending Emails, Generating PDFs, Video Processing.</p>
+                                    </div>
+                                </li>
+                                <li className="flex items-start">
+                                    <div className="bg-blue-100 p-1 rounded mr-3 mt-1"><CheckCircle2 className="w-3 h-3 text-blue-600" /></div>
+                                    <div>
+                                        <strong className="block text-gray-900 text-sm">You need Fault Tolerance</strong>
+                                        <p className="text-xs text-gray-500">If the Email service is down, the message waits in the queue. No data lost.</p>
+                                    </div>
+                                </li>
+                                <li className="flex items-start">
+                                    <div className="bg-blue-100 p-1 rounded mr-3 mt-1"><CheckCircle2 className="w-3 h-3 text-blue-600" /></div>
+                                    <div>
+                                        <strong className="block text-gray-900 text-sm">Write-Heavy Traffic</strong>
+                                        <p className="text-xs text-gray-500">Ingesting 1M IoT sensor readings? Queue them up and process later.</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div >
+        </div >
     );
 }
 
